@@ -1,18 +1,22 @@
 FROM runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04
 
-# Upgrade build tools so pip can parse wheel metadata properly
+# 1. Upgrade build tools
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
-# Install vLLM and huggingface_hub using extra index fallback for PyTorch/CUDA wheels
+# 2. Upgrade PyTorch to 2.5+ to satisfy transformers dependencies
+RUN pip install --no-cache-dir torch==2.5.1 --index-url https://download.pytorch.org/whl/cu124
+
+# 3. Install vLLM and huggingface_hub
 RUN pip install --no-cache-dir \
     vllm==0.6.3 \
-    huggingface_hub \
-    --extra-index-url https://download.pytorch.org/whl/cu124
+    huggingface_hub
 
-# Optional: Install flashinfer if needed without compiling from source
-RUN pip install --no-cache-dir flashinfer-python -i https://flashinfer.ai/whl/cu124/torch2.4/ || true
+# 4. Optional: Flashinfer pre-built wheel
+RUN pip install --no-cache-dir flashinfer-python -i https://flashinfer.ai/whl/cu124/torch2.5/ || true
 
 ENV PYTHONUNBUFFERED=1
+
+
 
 
 
